@@ -5,7 +5,7 @@ The `unmake` project exploitd the nature of GNU Make to create indexes of by the
 
 The nature of a makefile allows one to specify relationships between source files and artifacts using patterns. Unmake provides a method to build this into an index relating source files to their artifact lists. Once any given file is is updated, one can then simply check to see if it has an entry in the index. If so, you immediately know what files are now state and must be updates.
 
-In an extremely convenient turn of events, GNU Make provides a simple interface to pair build scripts with representations of the artifact-source relationship. GNU Make refers to these as TARGETS and PREREQUISITES. Their formatting is laid out like so:
+In an extremely convenient turn of events, GNU Make provides a simple interface to pair build scripts with representations of the artifact-source relationship. GNU Make refers to these files as TARGETS and PREREQUISITES respectively. Their formatting is laid out like so:
 
 ```make
 TARGET: PREREQ2 PREREQ2 PREREQ3
@@ -46,25 +46,38 @@ Thus, if one ever edited `lorem.jpg`, they could simply rebuild all dependant fi
 make $(cat .unmake/index/images/source/lorem.jpg);
 ```
 
+`cat .unmake/index/images/source/lorem.jpg` will list all the files in the index for `lorem.jpg`, and `$()` will list them out as arguments for `make`. If some are already up to date, make will see that they won't need to be rebuilt and move on.
+
+This does not stop at a single level. GNU Make will detect cascading dependencies, meaning the index files will contain ALL artifacts that GNU Make detects as dependent on a given source file. Thankfully as explained above GNU Make will only rebuild artifacts older than their sources.
+
 ## Including unmake in your project
 
-```bash
+Add the project as a git submodule under `.unmake/unmake/`.
 
+```bash
+git submodule add https://github.com/seanmorris/unmake.git
 ```
+
+Add `include .unmake/unmake/Makefile` to the end of your makefile:
 
 
 ```make
 #!/usr/bin/env make
 
-include .unmake/unmake/Makefile
+... your rules here
 
+include .unmake/unmake/Makefile
 ```
 
-`cat .unmake/index/images/source/lorem.jpg` will list all the files in the index for `lorem.jpg`, and `$()` will list them out as arguments for `make`. If some are already up to date, make will see that they won't need to be rebuilt and move on.
+Run make `unmake-index` to build the index:
 
-This does not stop at a single level. GNU Make will detect cascading dependencies, meaning the index files will contain ALL artifacts that GNU Make detects as dependent on a given source file. Thankfully as explained above GNU Make will only rebuild artifacts older than their sources.
+```bash
+make unmake-index
+```
 
-## unmake watcher
+## Parts
+
+### unmake watcher
 
 Once an Unmake index is built for a given makefile, running the following bash script in its directory would cause all of its files to be watched for changes, and any artifacts to be rebuilt as soon as their source files were closed:
 
@@ -98,7 +111,7 @@ inotifywait -qmre CREATE,DELETE,CLOSE_WRITE --format '%e %w%f' . | while read LI
 
 This can be found under the bash script `bin/unmake-watcher.sh`.
 
-## unmake installer
+### unmake installer
 
 This is not a fully fleged aspect of the utility and is provided only for convenience's sake as a simple wrapper around git submodules.
 
