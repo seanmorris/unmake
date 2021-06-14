@@ -7,13 +7,17 @@ The nature of a makefile allows one to specify relationships between source file
 
 In an extremely convenient turn of events, GNU Make provides a simple interface to pair build scripts with representations of the artifact-source relationship. GNU Make refers to these as TARGETS and PREREQUISITES. Their formatting is laid out like so:
 
+```make
 TARGET: PREREQ2 PREREQ2 PREREQ3
 	echo "build scripts here"
+```
 
 Cropping an image could be representing like so:
 
+```make
 images/cropped/%.jpeg: images/source/%.jpeg
 	convert $< -trim +repage $@
+```
 
 The above allows GNU Make to scan the `images/cropped/` and `images/source/` directories, and if there are and source jpegs newer than their cropped counterparts, they will be re-cropped. The entire makefile would look like:
 
