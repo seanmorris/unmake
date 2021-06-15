@@ -1,7 +1,7 @@
 # Unmake
 *Artifact indexer*
 
-The `unmake` project exploitd the nature of GNU Make to create indexes of by their source files. The purpose of this is to allow fast forward propagation of changes from source files to any generated files.
+The `unmake` project exploits the nature of GNU Make to create indexes of artifacts by their source files. The purpose of this is to allow fast forward propagation of changes from source files to any generated files.
 
 The nature of a makefile allows one to specify relationships between source files and artifacts using patterns. Unmake provides a method to build this into an index relating source files to their artifact lists. Once any given file is is updated, one can then simply check to see if it has an entry in the index. If so, you immediately know what files are now state and must be updates.
 
