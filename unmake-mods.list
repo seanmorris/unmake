@@ -1,0 +1,9 @@
+## UNMAKE MODULES LIST:
+##
+## Formatting:
+## Directory git_repo[ @tag-or-commit ]
+## i.e.:
+## .unmake/modules/seanmorris/cv3-inject https://github.com/seanmorris/cv3-inject.git@v0.0.7
+## 
+## Comments start with a #
+## 
