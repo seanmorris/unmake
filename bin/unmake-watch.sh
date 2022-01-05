@@ -22,7 +22,7 @@ inotifywait -qmre CREATE,DELETE,CLOSE_WRITE --format '%e %w%f' . | while read LI
 	[[ -z LIST ]] && continue;
 
 	echo -ne "Rebuilding ${FILE} on ${EVENT}\n${LIST}.\n" 1>&2;
-	[[ -f ${INDEX} ]] && make ${LIST} || true;
+	[[ -f ${INDEX} ]] && xargs -I{} make {} <<< "${LIST}" || true;
 	# [[ -f ${INDEX} ]] && make -s --dry-run ${LIST} || true;
 
 }; done;

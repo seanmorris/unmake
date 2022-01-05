@@ -51,6 +51,92 @@ Once you've got this structure, you can start writing the code.
 * `list-sources.sh` should search the filesystem for your source files.
 * `list-artifacts.sh` should take **ONE** source file on STDIN, and print the filename for each artifact it should produce.
 
+#### Example Module: SHA File Hasher
+
+##### Makefile (project root)
+
+This is a sample makefile the includes the example `digest` module:
+
+
+```makefile
+#!/usr/bin/env make
+SHELL=/usr/bin/env bash -euo pipefail
+MAKEFLAGS += --no-builtin-rules --warn-undefined-variables --no-print-directory
+
+all: targets
+
+include .unmake/unmake/Makefile
+
+$(call IMPORT_MODULE,digest)
+
+targets: unmake-index ${UNMAKE_TARGETS}
+```
+
+##### unmake/modules/digest/digest.mak
+
+The module's makefile contains a rule to build a file names `outbox/%.digest.json` for every file names `inbox/%` where `%` is the original filename, cut after `inbox/`.
+
+**Note:**
+
+This example also specifies one source file: `.salt` as a prerequisite for all artifact files built from this rule. If your artifacts only depend on a single file each, you can ignore the `.salt` parts.
+
+```makefile
+#!/usr/bin/env make
+
+outbox/%.digest.json: inbox/% .salt
+	jq -n \
+		--arg algo "SHA" \
+		--arg file "$<" \
+		--arg salt "$$(cat .salt)" \
+		--arg hash "$$(sha256sum <( cat .salt "$<" ) | cut -d' ' -f1)" \
+		'{"file":$$file, "hash": $$hash, "salt": $$salt, "algo": $$algo}' > "$@"
+```
+
+##### unmake/modules/digest/list-sources.sh
+
+This script simply lists every file under `inbox/`, then the `.salt` file (which would be found in the project root).
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail;
+
+find ./inbox/ -type f | grep -v '\/\.'
+
+echo ".salt"
+```
+
+##### unmake/modules/digest/list-artifacts.sh
+
+There's a bit of recursion here but there's nothing to worry about! It won't even apply unless you're using an additional file as a prerequisite (like the `.salt` file in this example).
+
+The script below will produce an artifact name (ending in `.digest.json`) given the name of an artifact on `STDIN`.
+
+If it receives the `.salt` file, it will then call the `list-sources.sh` file from above, and return all artifacts, since we use the salt when producing all of our artifacts.
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail;
+
+while read -r FILENAME; do
+
+	## If we're listing the salt's artifacts, list everything (except the salt)
+	[[ ${FILENAME} == ".salt" ]] && {
+		.unmake/modules/digest/list-sources.sh \
+		| grep -v .salt \ # skip .salt
+		| .unmake/modules/digest/list-artifacts.sh;
+		continue;
+	}
+
+	# Produce the artifact name, given a source filename:
+
+	BASENAME=`basename "${FILENAME}"`;
+
+	echo  "./outbox/${BASENAME}.digest.json";
+
+done
+
+```
+
 ## Parts
 
 ### unmake-watch
@@ -110,7 +196,7 @@ images/cropped/%.jpeg: images/source/%.jpeg
 	convert $< -trim +repage $@
 ```
 
-## Where Unmake comes in:
+### Where Unmake comes in:
 
 Given the source file `images/source/lorem.jpg`, a file would be produced at `.unmake/index/images/source/lorem.jpg.unmak` that would contain:
 

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-set -o pipefail
+set -euxo pipefail
 # set -a; . lib/init.sh; set +a;
 
 FILES=false;
 
 shopt -s dotglob extglob;
-rm -rf ./.unmake/index/!(.gitignore|..|.) || true;
+rm -rf ./.unmake/unmake/index/!(.gitignore|..|.) || true;
 shopt -u dotglob extglob;
 
 find ./.unmake/modules/* -type d \
@@ -14,7 +14,7 @@ find ./.unmake/modules/* -type d \
 	bash "${MODULE}/list-sources.sh" \
 	| while read PREREQ; do {
 
-		mkdir -p $(dirname ".unmake/unmake/index/${PREREQ}");
+		mkdir -p $(dirname "./.unmake/unmake/index/${PREREQ}");
 
 		# echo "${PREREQ}" 1>&2;
 
@@ -23,7 +23,7 @@ find ./.unmake/modules/* -type d \
 
 			# echo -ne "\t${TARGET}\n" 1>&2;
 
-			echo "${TARGET}" >> ".unmake/unmake/index/${PREREQ}.unmak";
+			echo "${TARGET}" >> "./.unmake/unmake/index/${PREREQ}.unmak";
 
 		} done;
 
