@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# set -a; . lib/init.sh; set +a;
 
 FILES=false;
 
@@ -10,18 +9,20 @@ shopt -u dotglob extglob;
 
 find ./.unmake/modules/* -type d \
 | while read MODULE; do {
+	
+	#echo -ne "${MODULE}\n" 1>&2;
 
 	bash "${MODULE}/list-sources.sh" \
 	| while read PREREQ; do {
 
 		mkdir -p $(dirname "./.unmake/unmake/index/${PREREQ}");
 
-		# echo "${PREREQ}" 1>&2;
+		#echo -ne "\t${PREREQ}\n" 1>&2;
 
 		bash "${MODULE}/list-artifacts.sh" <<< "${PREREQ}" \
 		| while read TARGET; do {
 
-			# echo -ne "\t${TARGET}\n" 1>&2;
+			#echo -ne "\t\t${TARGET}\n" 1>&2;
 
 			echo "${TARGET}" >> "./.unmake/unmake/index/${PREREQ}.unmak";
 
