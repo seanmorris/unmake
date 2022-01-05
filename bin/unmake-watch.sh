@@ -25,7 +25,4 @@ inotifywait -qmre CREATE,DELETE,CLOSE_WRITE --format '%e %w%f' . | while read LI
 	[[ -f ${INDEX} ]] && make ${LIST} || true;
 	# [[ -f ${INDEX} ]] && make -s --dry-run ${LIST} || true;
 
-	echo -ne "\n" 1>&2;
-
 }; done;
-# }; done | xargs -P4 -I{} bash -c "{}";
