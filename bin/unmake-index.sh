@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -o pipefail
 # set -a; . lib/init.sh; set +a;
 
 FILES=false;
@@ -7,42 +8,27 @@ shopt -s dotglob extglob;
 rm -rf ./.unmake/index/!(.gitignore|..|.) || true;
 shopt -u dotglob extglob;
 
-make -npq | grep -v '^\s' | while read LINE || [[ $LINE ]]; do {
+find ./.unmake/modules/* -type d \
+| while read MODULE; do {
 
-	[[ "# Files" == "${LINE}" ]] && {
-		FILES=true;
-		continue;
-	}
+	bash "${MODULE}/list-sources.sh" \
+	| while read PREREQ; do {
 
-	$FILES && {
-		[[ -z ${LINE} ]] && continue;
+		mkdir -p $(dirname ".unmake/unmake/index/${PREREQ}");
 
-		grep -q ^\# <<< "${LINE}" && continue;
-		grep -q : <<< "${LINE}"   || continue;
+		# echo "${PREREQ}" 1>&2;
 
-		TARGET=$(echo ${LINE} | cut -d ':' -f1)
-		PREREQS=$(echo ${LINE} | cut -d ':' -f2)
+		bash "${MODULE}/list-artifacts.sh" <<< "${PREREQ}" \
+		| while read TARGET; do {
 
-		
-		grep -q \? <<< "${TARGET}"  && continue;
-		grep -q \? <<< "${PREREQS}" && continue;
+			# echo -ne "\t${TARGET}\n" 1>&2;
 
-		[[ -z ${PREREQS} ]] && continue;
+			echo "${TARGET}" >> ".unmake/unmake/index/${PREREQ}.unmak";
 
-		[[ 'all' == ${TARGET} ]] && continue;
-		[[ 'clean' == ${TARGET} ]] && continue;
-		[[ '.PHONY' == ${TARGET} ]] && continue;
-		[[ '.DEFAULT' == ${TARGET} ]] && continue;
-		[[ '.SUFFIXES' == ${TARGET} ]] && continue;
-
-		for PREREQ in ${PREREQS}; do {
-			mkdir -p $(dirname ".unmake/index/${PREREQ}");
-			echo "${TARGET}" >> ".unmake/index/${PREREQ}.unmak";
 		} done;
 
-		echo -ne "\n";
-	} || true;
+	} done;
 
-} done | sort | grep -v ^$ || true
+} done;
 
-true;
+exit 0;

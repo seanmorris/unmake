@@ -4,6 +4,8 @@ MOD_LIST=./unmake-mods.list;
 
 cat ${MOD_LIST} | while read LINE; do {
 
+	[[ -z "${LINE}" ]] && continue;
+
 	grep -q ^\# <<< "${LINE}" && continue;
 
 	DIR=$(echo "${LINE}" | cut -d' ' -f1);

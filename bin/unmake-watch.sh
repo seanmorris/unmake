@@ -1,25 +1,31 @@
 #!/usr/bin/env bash
+set -euo pipefail;
+
+make unmake-index 1>&2;
+
 inotifywait -qmre CREATE,DELETE,CLOSE_WRITE --format '%e %w%f' . | while read LINE; do {
 
-	echo "${LINE}";
+	echo "${LINE}" | grep -q ".unmake" && continue;
 
 	EVENT=$(echo ${LINE} | cut -d' ' -f1);
 	FILE=$(echo ${LINE} | cut -d' ' -f2);
 
-	INDEX=.unmake/index/${FILE#./}.unmak;
+	INDEX=.unmake/unmake/index/${FILE#./}.unmak;
 
-	echo "${INDEX}";
+	[[ "${INDEX}" -nt "${FILE}" ]] && continue;
 
-	[ "${EVENT#,CLOSE}" = "CLOSE_WRITE" ] && {
-		echo "Rebuilding index on ${EVENT%,CLOSE}...";
-		make unmake-index
-	};
-
+	[[ -f ${INDEX} ]] || make unmake-index;
 	[[ -f ${INDEX} ]] || continue;
 
-	LIST=$(cat "${INDEX}");
+	LIST=$(cat "${INDEX}" | sed -e "s|^|\t|g");
 
-	echo "Rebuilding ${LIST}...";
-	[[ -f ${INDEX} ]] && make ${LIST};
+	[[ -z LIST ]] && continue;
+
+	echo -ne "Rebuilding ${FILE} on ${EVENT}\n${LIST}.\n" 1>&2;
+	[[ -f ${INDEX} ]] && make ${LIST} || true;
+	# [[ -f ${INDEX} ]] && make -s --dry-run ${LIST} || true;
+
+	echo -ne "\n" 1>&2;
 
 }; done;
+# }; done | xargs -P4 -I{} bash -c "{}";
