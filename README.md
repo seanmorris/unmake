@@ -36,10 +36,13 @@ $(call IMPORT_MODULE,foobar)
 You'll want to organize your code into modules for use with Unmake. You can create a module by creating a folder under `.unmake/modules/` in the root of the project. A `.make` file should be created with the same name, along with a `list-sources.sh`, and a  `list-artifacts.sh` file.
 
 ```plaintext
-+ foobar
-| foobar.make
-| list-sources.sh
-| list-artifacts.sh
++ your_project
+ + .unmake
+  + modules
+   + foobar
+   | foobar.make
+   | list-sources.sh
+   | list-artifacts.sh
 ```
 
 Once you've got this structure, you can start writing the code.
