@@ -188,7 +188,7 @@ Once paired with Unmake, the above allows GNU Make to scan the `images/cropped/`
 ```make
 #!/usr/bin/env make
 JPEG_SOURCES=$(shell find images/source -type f | grep -v '\/\.') # List the sources.
-JPEG_TARGETS=${MESSAGE_SOURCES:images/source%=images/cropped%}    # List the targets.
+JPEG_TARGETS=${JPEG_SOURCES:images/source%=images/cropped%}    # List the targets.
 
 all: ${JPEG_TARGETS} # Build them by default when running 'make' with no arguments.
 
