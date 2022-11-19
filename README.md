@@ -176,7 +176,7 @@ TARGET: PREREQ2 PREREQ2 PREREQ3
 	echo "build scripts here"
 ```
 
-Cropping an image could be representing like so:
+Cropping an image could be represented like so:
 
 ```make
 images/cropped/%.jpeg: images/source/%.jpeg
