@@ -167,7 +167,7 @@ Run `make unmake-install` to add the projects as git submodules at their given l
 
 ## How it works
 
-The nature of a makefile allows one to specify relationships between source files and artifacts using patterns. Unmake provides a method to build this into an index relating source files to their artifact lists. Once any given file is is updated, one can then simply check to see if it has an entry in the index. If so, you immediately know what files are now state and must be updates.
+The nature of a makefile allows one to specify relationships between source files and artifacts using patterns. Unmake provides a method to build this into an index relating source files to their artifact lists. Once any given file is is updated, one can then simply check to see if it has an entry in the index. If so, you immediately know what files changed state and must be updated.
 
 In an extremely convenient turn of events, GNU Make provides a simple interface to pair build scripts with representations of the artifact-source relationship. GNU Make refers to these files as TARGETS and PREREQUISITES respectively. Their formatting is laid out like so:
 
